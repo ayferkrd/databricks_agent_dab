@@ -1,0 +1,20 @@
+bundle:
+  name: simple_chatbot
+
+resources:
+  apps:
+    simple_chatbot:
+      name: agent-${workspace.current_user.id}-${bundle.target}
+      description: "Simple chatbot agent"
+      source_code_path: ./
+      resources:
+        - name: model-service
+          uc_securable:
+            securable_full_name: dbacademy.agent_deployment.agent-model
+            securable_type: MODEL_SERVICE
+            permission: EXECUTE
+
+targets:
+  dev:
+    mode: development
+    default: true

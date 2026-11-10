@@ -1,0 +1,5 @@
+env:
+  - name: MODEL_SERVICE
+    valueFrom: model-service
+
+command: ["uv", "run", "start-server"]
