@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Databricks Academy Assistant</title>
+  <style>
+    /* ── Databricks color tokens ── */
+    :root {
+      --db-dark:      #0b2026;
+      --db-red:       #FF5F46;
+      --db-red-dark:  #98102A;
+      --db-teal-dark: #1B5162;
+      --db-teal-mid:  #618794;
+      --db-green:     #00A972;
+      --db-amber:     #FFAB00;
+      --db-blue:      #4299E0;
+      --db-off-white: #F9F7F4;
+      --db-light-bg:  #EEEDE9;
+      --db-gray:      #C2C2C2;
+      --db-pink-lt:   #FABFBA;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      background: var(--db-light-bg);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    /* ── Header / nav bar ── */
+    header {
+      width: 100%;
+      background: var(--db-dark);
+      padding: 0 32px;
+      height: 56px;
+      display: flex;
+      align-items: center;
+      box-shadow: 0 2px 8px rgba(0,0,0,.35);
+    }
+
+    /* ── Databricks Academy SVG logo ── */
+    .db-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+    }
+    .db-logo-text {
+      display: flex;
+      flex-direction: column;
+      line-height: 1;
+    }
+    .db-logo-text .wordmark {
+      font-size: 18px;
+      font-weight: 700;
+      color: #ffffff;
+      letter-spacing: -0.3px;
+    }
+    .db-logo-text .academy {
+      font-size: 11px;
+      font-weight: 400;
+      color: var(--db-gray);
+      letter-spacing: 1.2px;
+      text-transform: uppercase;
+      margin-top: 2px;
+    }
+
+    /* ── Main chat container ── */
+    main {
+      width: 100%;
+      max-width: 760px;
+      padding: 32px 20px 40px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .chat-title {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .chat-title h1 {
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--db-dark);
+    }
+    .chat-title p {
+      font-size: 13px;
+      color: var(--db-teal-mid);
+    }
+
+    /* ── Message window ── */
+    #messages {
+      background: #ffffff;
+      border: 1px solid var(--db-gray);
+      border-radius: 10px;
+      padding: 20px;
+      height: 420px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      scroll-behavior: smooth;
+    }
+
+    /* Scrollbar styling */
+    #messages::-webkit-scrollbar { width: 6px; }
+    #messages::-webkit-scrollbar-track { background: var(--db-off-white); border-radius: 4px; }
+    #messages::-webkit-scrollbar-thumb { background: var(--db-gray); border-radius: 4px; }
+
+    .msg { display: flex; }
+    .user  { justify-content: flex-end; }
+    .agent { justify-content: flex-start; }
+
+    .user span {
+      background: var(--db-teal-dark);
+      color: #ffffff;
+      padding: 10px 14px;
+      border-radius: 16px 16px 4px 16px;
+      max-width: 75%;
+      font-size: 14px;
+      line-height: 1.5;
+      word-break: break-word;
+    }
+
+    .agent span {
+      background: var(--db-off-white);
+      color: var(--db-dark);
+      border: 1px solid var(--db-light-bg);
+      padding: 10px 14px;
+      border-radius: 16px 16px 16px 4px;
+      max-width: 75%;
+      font-size: 14px;
+      line-height: 1.5;
+      word-break: break-word;
+    }
+
+    /* ── Greeting message icon + text layout ── */
+    .greeting-content {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .greeting-content img {
+      width: 28px;
+      height: 28px;
+      flex-shrink: 0;
+    }
+
+    /* Thinking indicator */
+    .agent.thinking span {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--db-teal-mid);
+      font-style: italic;
+    }
+    .dot-flashing {
+      display: inline-flex;
+      gap: 4px;
+    }
+    .dot-flashing span {
+      width: 6px; height: 6px;
+      background: var(--db-teal-mid);
+      border-radius: 50%;
+      animation: blink 1.2s infinite;
+      padding: 0; border: none;
+    }
+    .dot-flashing span:nth-child(2) { animation-delay: .2s; }
+    .dot-flashing span:nth-child(3) { animation-delay: .4s; }
+    @keyframes blink {
+      0%, 80%, 100% { opacity: .2; }
+      40% { opacity: 1; }
+    }
+
+    /* ── Input row ── */
+    #input-row {
+      display: flex;
+      gap: 10px;
+    }
+
+    #input {
+      flex: 1;
+      padding: 12px 16px;
+      border: 1.5px solid var(--db-gray);
+      border-radius: 8px;
+      font-size: 14px;
+      color: var(--db-dark);
+      background: #ffffff;
+      outline: none;
+      transition: border-color .2s;
+    }
+    #input:focus {
+      border-color: var(--db-teal-dark);
+      box-shadow: 0 0 0 3px rgba(27,81,98,.12);
+    }
+    #input::placeholder { color: var(--db-teal-mid); }
+
+    #send {
+      padding: 12px 24px;
+      background: var(--db-red);
+      color: #ffffff;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 600;
+      letter-spacing: .3px;
+      transition: background .2s, transform .1s;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      white-space: nowrap;
+    }
+    #send:hover:not(:disabled) {
+      background: #e04a32;
+      transform: translateY(-1px);
+    }
+    #send:active:not(:disabled) { transform: translateY(0); }
+    #send:disabled {
+      background: var(--db-gray);
+      cursor: default;
+      transform: none;
+    }
+
+    /* ── Footer note ── */
+    .footer-note {
+      text-align: center;
+      font-size: 11px;
+      color: var(--db-teal-mid);
+      padding-top: 4px;
+    }
+    .footer-note a { color: var(--db-red); text-decoration: none; }
+    .footer-note a:hover { text-decoration: underline; }
+
+    /* ── Markdown rendering in agent messages ── */
+    .agent span h1, .agent span h2, .agent span h3,
+    .agent span h4, .agent span h5, .agent span h6 {
+      margin: 10px 0 6px 0; line-height: 1.3; color: var(--db-dark);
+    }
+    .agent span h2 { font-size: 15px; font-weight: 700; }
+    .agent span h3 { font-size: 14px; font-weight: 600; }
+    .agent span p { margin: 6px 0; }
+    .agent span ul, .agent span ol {
+      margin: 6px 0 6px 20px; padding: 0;
+    }
+    .agent span li { margin-bottom: 4px; }
+    .agent span code {
+      background: rgba(0,0,0,0.06); padding: 2px 5px;
+      border-radius: 4px; font-family: 'Menlo','Consolas',monospace;
+      font-size: 12px;
+    }
+    .agent span pre {
+      background: #1e1e2e; color: #cdd6f4; padding: 12px 14px;
+      border-radius: 8px; overflow-x: auto; margin: 8px 0;
+      font-size: 12px; line-height: 1.5;
+    }
+    .agent span pre code {
+      background: none; padding: 0; color: inherit;
+    }
+    .agent span strong { font-weight: 600; }
+    .agent span em { font-style: italic; }
+    .agent span blockquote {
+      border-left: 3px solid var(--db-teal-mid); margin: 8px 0;
+      padding: 4px 12px; color: #555;
+    }
+    .agent span hr {
+      border: none; border-top: 1px solid var(--db-gray); margin: 10px 0;
+    }
+  </style>
+  <script src="https://cdn.jsdelivr.net/npm/marked@15.0.12/marked.min.js"></script>
+</head>
+<body>
+
+  <!-- ── Header ── -->
+  <header>
+    <a class="db-logo" href="#">
+      <!-- Official Databricks symbol -->
+      <svg width="32" height="35" viewBox="0 0 241 266" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M228.085 109.654L120.615 171.674L5.53493 105.41L0 108.475V156.582L120.615 225.911L228.085 164.128V189.596L120.615 251.615L5.53493 185.351L0 188.417V196.67L120.615 266L241 196.67V148.564L235.465 145.498L120.615 211.527L12.9148 149.743V124.275L120.615 186.059L241 116.729V69.3298L235.004 65.7925L120.615 131.585L18.4498 73.1028L120.615 14.3848L204.562 62.7269L211.942 58.4823V52.5869L120.615 0L0 69.3298V76.8759L120.615 146.206L228.085 84.1862V109.654Z" fill="#FF5F46"/>
+      </svg>
+      <span class="db-logo-text">
+        <span class="wordmark">databricks</span>
+        <span class="academy">Academy</span>
+      </span>
+    </a>
+  </header>
+
+  <!-- ── Chat UI ── -->
+  <main>
+    <div class="chat-title">
+      <h1>Databricks Lab App</h1>
+      <p>Powered by Databricks Apps</p>
+    </div>
+
+    <div id="messages">
+      <!-- Seed greeting -->
+      <div class="msg agent">
+        <span>
+          <span class="greeting-content">
+            <svg width="28" height="31" viewBox="0 0 241 266" fill="none" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0">
+              <path d="M228.085 109.654L120.615 171.674L5.53493 105.41L0 108.475V156.582L120.615 225.911L228.085 164.128V189.596L120.615 251.615L5.53493 185.351L0 188.417V196.67L120.615 266L241 196.67V148.564L235.465 145.498L120.615 211.527L12.9148 149.743V124.275L120.615 186.059L241 116.729V69.3298L235.004 65.7925L120.615 131.585L18.4498 73.1028L120.615 14.3848L204.562 62.7269L211.942 58.4823V52.5869L120.615 0L0 69.3298V76.8759L120.615 146.206L228.085 84.1862V109.654Z" fill="#FF5F46"/>
+            </svg>
+            Welcome to your demo assistant! How can I help you today?
+          </span>
+        </span>
+      </div>
+    </div>
+
+    <div id="input-row">
+      <input id="input" type="text" placeholder="Ask something about Databricks…" autofocus />
+      <button id="send" onclick="send()">
+        <!-- send arrow icon -->
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="22" y1="2" x2="11" y2="13"/>
+          <polygon points="22 2 15 22 11 13 2 9 22 2"/>
+        </svg>
+        Send
+      </button>
+    </div>
+
+    <p class="footer-note">
+      Databricks Academy &mdash; <a href="https://www.databricks.com/learn/training/home" target="_blank">databricks.com/training</a>
+    </p>
+  </main>
+
+  <script>
+    const history = [];
+
+    async function send() {
+      const input  = document.getElementById("input");
+      const sendBtn = document.getElementById("send");
+      const text   = input.value.trim();
+      if (!text) return;
+
+      addMessage("user", text);
+      history.push({ role: "user", content: text });
+      input.value = "";
+      sendBtn.disabled = true;
+
+      // Thinking indicator
+      const thinkingId = addThinking();
+
+      try {
+        const res = await fetch("/invocations", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ input: history })
+        });
+        const data = await res.json();
+        const reply = data.output;
+
+        removeThinking(thinkingId);
+        addMessage("agent", reply);
+        history.push({ role: "assistant", content: reply });
+      } catch (err) {
+        removeThinking(thinkingId);
+        addMessage("agent", "⚠️ Something went wrong. Please try again.");
+      }
+
+      sendBtn.disabled = false;
+      input.focus();
+    }
+
+    function addMessage(role, text) {
+      const div = document.createElement("div");
+      div.className = "msg " + role;
+      const span = document.createElement("span");
+      if (role === "agent") {
+        span.innerHTML = marked.parse(text);
+      } else {
+        span.textContent = text;
+      }
+      div.appendChild(span);
+      const msgs = document.getElementById("messages");
+      msgs.appendChild(div);
+      msgs.scrollTop = msgs.scrollHeight;
+    }
+
+    function addThinking() {
+      const id = "thinking-" + Date.now();
+      const div = document.createElement("div");
+      div.className = "msg agent thinking";
+      div.id = id;
+      div.innerHTML = `<span>Thinking <span class="dot-flashing"><span></span><span></span><span></span></span></span>`;
+      const msgs = document.getElementById("messages");
+      msgs.appendChild(div);
+      msgs.scrollTop = msgs.scrollHeight;
+      return id;
+    }
+
+    function removeThinking(id) {
+      const el = document.getElementById(id);
+      if (el) el.remove();
+    }
+
+    document.getElementById("input").addEventListener("keydown", e => {
+      if (e.key === "Enter") send();
+    });
+  </script>
+
+</body>
+</html>
