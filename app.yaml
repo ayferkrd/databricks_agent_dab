@@ -1,5 +1,8 @@
 env:
   - name: MODEL_SERVICE
     valueFrom: model-service
-
+  - name: MLFLOW_EXPERIMENT_ID
+    valueFrom: app-experiment
+  - name: LISTINGS_TABLE
+    valueFrom: listings-table
 command: ["uv", "run", "start-server"]
