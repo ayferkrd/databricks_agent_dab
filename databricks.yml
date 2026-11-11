@@ -10,7 +10,7 @@ resources:
       resources:
         - name: model-service
           uc_securable:
-            securable_full_name: db.agent_deployment.agent-model
+            securable_full_name: labuser_ayfer_kucukerdonmez.agent_deployment.agent-model
             securable_type: MODEL_SERVICE
             permission: EXECUTE
 
