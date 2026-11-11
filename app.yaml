@@ -5,4 +5,6 @@ env:
     valueFrom: app-experiment
   - name: LISTINGS_TABLE
     valueFrom: listings-table
+  - name: SQL_WAREHOUSE_ID
+    valueFrom: sql-warehouse
 command: ["uv", "run", "start-server"]
