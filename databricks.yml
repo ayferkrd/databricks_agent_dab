@@ -23,10 +23,19 @@ resources:
             securable_full_name: labuser_ayfer_kucukerdonmez.agent_deployment.agent-model
             securable_type: MODEL_SERVICE
             permission: EXECUTE
+        - name: listings-table
+          uc_securable:
+            securable_full_name: labuser_ayfer_kucukerdonmez.agent_deployment.sf_airbnb_listings
+            securable_type: TABLE
+            permission: SELECT
         - name: app-experiment
           experiment:
             experiment_id: ${resources.experiments.chatbot_experiment.id}
             permission: CAN_EDIT
+        - name: sql-warehouse
+          sql_warehouse:
+            id: ${var.warehouse_id}
+            permission: CAN_USE
 targets:
   dev:
     mode: development
