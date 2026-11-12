@@ -17,6 +17,9 @@ resources:
       name: agent-${workspace.current_user.id}-${bundle.target}
       description: "Simple chatbot agent"
       source_code_path: ./
+      # User authorization: forward the caller's token so the app can resolve
+      # their identity (defaults to identity-only scopes: iam.current-user:read).
+      user_api_scopes: []
       resources:
         - name: model-service
           uc_securable:

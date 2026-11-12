@@ -331,6 +331,16 @@
   <script>
     const history = [];
 
+    // Stable per-browser conversation ID so all turns share one MLflow session
+    const sessionId = (() => {
+      let id = localStorage.getItem("chat_session_id");
+      if (!id) {
+        id = crypto.randomUUID();
+        localStorage.setItem("chat_session_id", id);
+      }
+      return id;
+    })();
+
     async function send() {
       const input  = document.getElementById("input");
       const sendBtn = document.getElementById("send");
@@ -349,7 +359,7 @@
         const res = await fetch("/invocations", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ input: history })
+          body: JSON.stringify({ input: history, session_id: sessionId })
         });
         const data = await res.json();
         const reply = data.output;
